@@ -1,4 +1,3 @@
-```yaml
 name: Sync Obsidian Content and Generate Embeddings
 
 on:
@@ -29,20 +28,29 @@ jobs:
       - name: Checkout obsidian content
         uses: actions/checkout@v3
         with:
-          repository: pete-mo/pete-obsidian-blog
-          path: "C:/Users/fresh/Documents/Blog Content/03 - Published"
+          repository: pete-mo/blog-content  # ← This should be your SEPARATE Obsidian repo
+          path: obsidian-content
           token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Process and copy published posts
         shell: powershell
         run: |
-          New-Item -ItemType Directory -Force -Path "src/posts"
+          New-Item -ItemType Directory -Force -Path "src\posts"
           
-          # Copy only published posts
-          Get-ChildItem "obsidian-content/03 - Published" -Filter "*.md" | Copy-Item -Destination "src/posts"
+          # Copy only published posts (note the corrected path)
+          if (Test-Path "obsidian-content\03 - Published") {
+            Get-ChildItem "obsidian-content\03 - Published" -Filter "*.md" | Copy-Item -Destination "src\posts"
+            Write-Host "Copied posts from Obsidian vault"
+          } else {
+            Write-Host "No published posts folder found"
+          }
           
           # Process frontmatter and content
-          node scripts/process-obsidian-posts.js
+          if (Test-Path "scripts\process-obsidian-posts.js") {
+            node scripts\process-obsidian-posts.js
+          } else {
+            Write-Host "Processing script not found"
+          }
           
       - name: Generate embeddings
         env:
@@ -50,7 +58,11 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
-          node scripts/generate-embeddings.js
+          if (Test-Path "scripts\generate-embeddings.js") {
+            node scripts\generate-embeddings.js
+          } else {
+            Write-Host "Embeddings script not found"
+          }
           
       - name: Build site
         run: npm run build
