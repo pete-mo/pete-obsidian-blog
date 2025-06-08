@@ -1,0 +1,67 @@
+```yaml
+name: Sync Obsidian Content and Generate Embeddings
+
+on:
+  repository_dispatch:
+    types: [obsidian-update]
+  schedule:
+    - cron: '*/15 * * * *'  # Every 15 minutes
+  workflow_dispatch:
+
+jobs:
+  sync-and-build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+          
+      - name: Checkout obsidian content
+        uses: actions/checkout@v3
+        with:
+          repository: yourusername/blog-content
+          path: obsidian-content
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Process and copy published posts
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path "src\posts"
+          
+          # Copy only published posts
+          Get-ChildItem "obsidian-content\03 - Published" -Filter "*.md" | Copy-Item -Destination "src\posts"
+          
+          # Process frontmatter and content
+          node scripts\process-obsidian-posts.js
+          
+      - name: Generate embeddings
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          node scripts\generate-embeddings.js
+          
+      - name: Build site
+        run: npm run build
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git diff --staged --quiet || git commit -m "Sync content and update embeddings"
+          git push
