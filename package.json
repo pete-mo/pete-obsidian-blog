@@ -1,36 +1,20 @@
 {
   "name": "pete-obsidian-blog",
   "version": "1.0.0",
-  "description": "A project to automatically funnel content from an Obsidian vault into a public blog.",
-  "main": ".eleventy.js",
+  "description": "AI-enhanced blog built with Obsidian and 11ty",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "eleventy",
     "serve": "eleventy --serve",
     "debug": "DEBUG=* eleventy",
     "generate-embeddings": "node scripts\\generate-embeddings.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/pete-mo/pete-obsidian-blog.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/pete-mo/pete-obsidian-blog/issues"
-  },
-  "homepage": "https://github.com/pete-mo/pete-obsidian-blog#readme",
-  "devDependencies": {
-    "@11ty/eleventy": "^3.1.1",
-    "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.1",
-    "markdown-it": "^14.1.0"
-  },
   "dependencies": {
-    "@anthropic-ai/sdk": "0.53.0",
-    "@supabase/supabase-js": "^2.50.0",
-    "gray-matter": "^4.0.3",
-    "openai": "^5.1.1",
-    "postgres": "^3.4.7"
+    "@supabase/supabase-js": "^2.45.0",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^4.2.0",
+    "markdown-it": "^13.0.2"
   }
 }
