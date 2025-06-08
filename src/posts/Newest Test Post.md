@@ -2,7 +2,7 @@
 layout: post.njk
 title: Simple Post Template
 date: 2025-06-08
-status: draft
+status: published
 tags: 
 primary_topic: ""
 summary: ""
