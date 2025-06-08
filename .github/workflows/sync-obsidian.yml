@@ -29,8 +29,8 @@ jobs:
       - name: Checkout obsidian content
         uses: actions/checkout@v3
         with:
-          repository: pete-mo/blog-content
-          path: obsidian-content
+          repository: pete-mo/pete-obsidian-blog
+          path: "C:\Users\fresh\Documents\Projects\pete-obsidian-blog\package.json"
           token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Process and copy published posts
