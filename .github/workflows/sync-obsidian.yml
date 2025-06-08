@@ -7,6 +7,9 @@ on:
     - cron: '*/15 * * * *'  # Every 15 minutes
   workflow_dispatch:
 
+permissions:
+  contents: write  # This line fixes the permission issue
+
 jobs:
   sync-and-build:
     runs-on: windows-latest
@@ -62,6 +65,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add .
+          git add src/posts/
+          git add _site/
           git diff --staged --quiet || git commit -m "Sync content from Obsidian"
           git push
