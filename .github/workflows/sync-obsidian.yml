@@ -5,7 +5,7 @@ on:
   repository_dispatch:
     types: [obsidian-update]
   schedule:
-    - cron: '*/10 * * * *'  # Every 10 minutes
+    - cron: '*/15 * * * *'  # Every 15 minutes
   workflow_dispatch:
 
 jobs:
@@ -42,7 +42,7 @@ jobs:
           Get-ChildItem "obsidian-content/03 - Published" -Filter "*.md" | Copy-Item -Destination "src/posts"
           
           # Process frontmatter and content
-          node scripts\process-obsidian-posts.js
+          node scripts/process-obsidian-posts.js
           
       - name: Generate embeddings
         env:
@@ -50,7 +50,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
-          node scripts\generate-embeddings.js
+          node scripts/generate-embeddings.js
           
       - name: Build site
         run: npm run build
