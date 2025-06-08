@@ -27,4 +27,4 @@ oh this is the good stuff
 
 ## Next Steps
 
-[[Simple Test]]
+obsidian://open?vault=Blog%20Content&file=03%20-%20Published%2FSimple%20Test
