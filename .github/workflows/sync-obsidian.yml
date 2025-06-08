@@ -5,7 +5,7 @@ on:
   repository_dispatch:
     types: [obsidian-update]
   schedule:
-    - cron: '*/15 * * * *'  # Every 15 minutes
+    - cron: '*/10 * * * *'  # Every 10 minutes
   workflow_dispatch:
 
 jobs:
@@ -29,17 +29,17 @@ jobs:
       - name: Checkout obsidian content
         uses: actions/checkout@v3
         with:
-          repository: yourusername/blog-content
+          repository: pete-mo/blog-content
           path: obsidian-content
           token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Process and copy published posts
         shell: powershell
         run: |
-          New-Item -ItemType Directory -Force -Path "src\posts"
+          New-Item -ItemType Directory -Force -Path "src/posts"
           
           # Copy only published posts
-          Get-ChildItem "obsidian-content\03 - Published" -Filter "*.md" | Copy-Item -Destination "src\posts"
+          Get-ChildItem "obsidian-content/03 - Published" -Filter "*.md" | Copy-Item -Destination "src/posts"
           
           # Process frontmatter and content
           node scripts\process-obsidian-posts.js
