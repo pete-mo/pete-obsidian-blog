@@ -1,4 +1,4 @@
-name: Sync Obsidian Content and Generate Embeddings
+name: Sync Obsidian Content
 
 on:
   repository_dispatch:
@@ -32,17 +32,7 @@ jobs:
           path: obsidian-content
           token: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: Debug - List obsidian content
-        shell: powershell
-        run: |
-          Write-Host "=== Obsidian Content Structure ==="
-          if (Test-Path "obsidian-content") {
-            Get-ChildItem "obsidian-content" -Recurse | Select-Object FullName
-          } else {
-            Write-Host "obsidian-content folder not found"
-          }
-          
-      - name: Process and copy published posts
+      - name: Copy published posts
         shell: powershell
         run: |
           New-Item -ItemType Directory -Force -Path "src\posts"
@@ -60,21 +50,10 @@ jobs:
           } else {
             Write-Host "Published posts folder not found at: $publishedPath"
             Write-Host "Available folders:"
-            Get-ChildItem "obsidian-content" -Directory | ForEach-Object { Write-Host "  - $($_.Name)" }
+            if (Test-Path "obsidian-content") {
+              Get-ChildItem "obsidian-content" -Directory | ForEach-Object { Write-Host "  - $($_.Name)" }
+            }
           }
-          
-      - name: Process frontmatter and content
-        shell: powershell
-        run: |
-          if (Test-Path "scripts\process-obsidian-posts.js") {
-            node scripts\process-obsidian-posts.js
-          } else {
-            Write-Host "Processing script not found - skipping frontmatter processing"
-          }
-          
-      - name: Skip embeddings for now
-        run: |
-          Write-Host "Skipping embeddings generation - will add this later"
           
       - name: Build site
         run: npm run build
