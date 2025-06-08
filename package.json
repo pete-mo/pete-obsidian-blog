@@ -28,9 +28,9 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.53.0",
-    
     "@supabase/supabase-js": "^2.50.0",
     "gray-matter": "^4.0.3",
-    "openai": "^5.1.1"
+    "openai": "^5.1.1",
+    "postgres": "^3.4.7"
   }
 }
