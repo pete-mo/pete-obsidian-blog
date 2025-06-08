@@ -1,0 +1,142 @@
+<div id="chat-widget" class="chat-widget">
+  <button id="chat-toggle" class="chat-toggle">
+    <span class="chat-icon">💬</span>
+    <span class="chat-text">Ask about this blog</span>
+  </button>
+  
+  <div id="chat-panel" class="chat-panel hidden">
+    <div class="chat-header">
+      <h3>Chat with my blog</h3>
+      <button id="chat-close">&times;</button>
+    </div>
+    
+    <div id="chat-messages" class="chat-messages">
+      <div class="bot-message">
+        <div class="message-content">
+          Hi! I can answer questions about the content on this blog. I'll reference specific posts in my responses. What would you like to know?
+        </div>
+      </div>
+    </div>
+    
+    <form id="chat-form" class="chat-form">
+      <input type="text" id="chat-input" placeholder="Ask about any topic..." required>
+      <button type="submit" id="chat-submit">
+        <span class="submit-text">Send</span>
+        <span class="submit-loading hidden">⏳</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const chatToggle = document.getElementById('chat-toggle');
+  const chatPanel = document.getElementById('chat-panel');
+  const chatClose = document.getElementById('chat-close');
+  const chatForm = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+  const chatMessages = document.getElementById('chat-messages');
+  const submitBtn = document.getElementById('chat-submit');
+
+  // Generate conversation ID for analytics
+  const conversationId = 'conv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+  chatToggle.addEventListener('click', () => {
+    chatPanel.classList.toggle('hidden');
+    if (!chatPanel.classList.contains('hidden')) {
+      chatInput.focus();
+    }
+  });
+
+  chatClose.addEventListener('click', () => {
+    chatPanel.classList.add('hidden');
+  });
+
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    // Add user message
+    addMessage(message, 'user');
+    chatInput.value = '';
+
+    // Show loading state
+    setLoadingState(true);
+
+    try {
+      const response = await fetch('/.netlify/functions/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          message,
+          conversation_id: conversationId 
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        addMessage(data.response, 'bot', data.sources);
+      } else {
+        addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+      }
+      
+    } catch (error) {
+      addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+    } finally {
+      setLoadingState(false);
+    }
+  });
+
+  function addMessage(text, sender, sources = []) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `${sender}-message`;
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.textContent = text;
+    messageDiv.appendChild(contentDiv);
+
+    // Add sources if available
+    if (sources && sources.length > 0) {
+      const sourcesDiv = document.createElement('div');
+      sourcesDiv.className = 'message-sources';
+      sourcesDiv.innerHTML = '<strong>Referenced posts:</strong>';
+      
+      const sourcesList = document.createElement('ul');
+      sources.forEach(source => {
+        const li = document.createElement('li');
+        li.innerHTML = `<a href="/${source.slug}/" target="_blank">${source.title}</a> <span class="source-topic">(${source.topic})</span>`;
+        sourcesList.appendChild(li);
+      });
+      
+      sourcesDiv.appendChild(sourcesList);
+      messageDiv.appendChild(sourcesDiv);
+    }
+
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return messageDiv;
+  }
+
+  function setLoadingState(loading) {
+    const submitText = submitBtn.querySelector('.submit-text');
+    const submitLoading = submitBtn.querySelector('.submit-loading');
+    
+    if (loading) {
+      submitText.classList.add('hidden');
+      submitLoading.classList.remove('hidden');
+      submitBtn.disabled = true;
+      chatInput.disabled = true;
+    } else {
+      submitText.classList.remove('hidden');
+      submitLoading.classList.add('hidden');
+      submitBtn.disabled = false;
+      chatInput.disabled = false;
+      chatInput.focus();
+    }
+  }
+});
+</script>
