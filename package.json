@@ -9,7 +9,9 @@
     "generate-embeddings": "node scripts\\generate-embeddings.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.28.0",
     "@supabase/supabase-js": "^2.45.0",
+    "openai": "^4.63.0",
     "gray-matter": "^4.0.3"
   },
   "devDependencies": {
