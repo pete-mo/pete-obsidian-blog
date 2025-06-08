@@ -72,28 +72,17 @@ jobs:
             Write-Host "Processing script not found - skipping frontmatter processing"
           }
           
-      - name: Generate embeddings
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      - name: Skip embeddings for now
         run: |
-          if (Test-Path "scripts\generate-embeddings.js") {
-            node scripts\generate-embeddings.js
-          } else {
-            Write-Host "Embeddings script not found - skipping embedding generation"
-          }
+          Write-Host "Skipping embeddings generation - will add this later"
           
       - name: Build site
         run: npm run build
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git diff --staged --quiet || git commit -m "Sync content and update embeddings"
+          git diff --staged --quiet || git commit -m "Sync content from Obsidian"
           git push
